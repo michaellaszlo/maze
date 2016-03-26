@@ -1,6 +1,6 @@
 var Maze = (function() {
   var sizes = {
-        cell: 20
+        cell: 32
       },
       containers = {},
       canvases = {},
@@ -9,13 +9,34 @@ var Maze = (function() {
       numCols = 10,
       maze;
 
+  function shuffle(arr) {
+    var i, j, t;
+    for (i = arr.length - 1; i > 0; --i) {
+      j = Math.floor((i + 1) * Math.random());
+      if (j == i) {
+        continue;
+      }
+      t = arr[i];
+      arr[i] = arr[j];
+      arr[j] = t;
+    }
+  }
+
   function initMaze() {
-    var r, c;
+    var cell,
+        r, c;
     maze = new Array(numRows);
     for (r = 0; r < numRows; ++r) {
       maze[r] = new Array(numCols);
       for (c = 0; c < numCols; ++c) {
-        maze[r][c] = { neighbors: {} };
+        maze[r][c] = cell = {
+          neighbors: {},
+          initOrder: [ 'n', 'e', 's', 'w' ]
+        };
+        cell.initOrder.forEach(function (direction) {
+          cell.neighbors[direction] = true;
+        });
+        shuffle(cell.initOrder);
       }
     }
   }
@@ -39,16 +60,16 @@ var Maze = (function() {
       for (c = 0; c < numCols; ++c) {
         x0 = c * unit;
         neighbors = maze[r][c];
-        if (!('n' in neighbors)) {
+        if (!neighbors.n) {
           drawLine(x0, y0, x0 + unit, y0);
         }
-        if (!('e' in neighbors)) {
+        if (!neighbors.e) {
           drawLine(x0 + unit, y0, x0 + unit, y0 + unit);
         }
-        if (!('s' in neighbors)) {
+        if (!neighbors.s) {
           drawLine(x0, y0 + unit, x0 + unit, y0 + unit);
         }
-        if (!('w' in neighbors)) {
+        if (!neighbors.w) {
           drawLine(x0, y0, x0, y0 + unit);
         }
       }

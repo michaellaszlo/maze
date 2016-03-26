@@ -6,4 +6,7 @@
 
 #mazeContainer {
   border: 1px solid #bbb;
+  position: absolute;
+  left: 20px;
+  top: 20px;
 }
