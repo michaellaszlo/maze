@@ -2,11 +2,17 @@ var Maze = (function() {
   var sizes = {
         cell: 32
       },
+      directions = {
+        n: { r: -1, c: 0, invert: 's' },
+        e: { r: 0, c: 1, invert: 'w' },
+        s: { r: 1, c: 0, invert: 'n' },
+        w: { r: 0, c: -1, invert: 'e' }
+      },
       containers = {},
       canvases = {},
       contexts = {},
-      numRows = 10,
-      numCols = 10,
+      numRows = 4,
+      numCols = 4,
       maze;
 
   function shuffle(arr) {
@@ -22,21 +28,58 @@ var Maze = (function() {
     }
   }
 
+  function findLeader(a) {
+    while (a.leader != a) {
+      a = a.leader;
+    }
+    return a;
+  }
+
+  function joinCell(a, b) {
+    var leaderA = findLeader(a),
+        leaderB = findLeader(b);
+    if (leaderA == leaderB) {
+      return;
+    }
+    a.leader = b.leader;
+  }
+
   function initMaze() {
     var cell,
-        r, c;
+        r, c, i, d, R, C, neighbor;
     maze = new Array(numRows);
     for (r = 0; r < numRows; ++r) {
       maze[r] = new Array(numCols);
       for (c = 0; c < numCols; ++c) {
-        maze[r][c] = cell = {
-          neighbors: {},
-          initOrder: [ 'n', 'e', 's', 'w' ]
+        cell = maze[r][c] = {
+          initOrder: [ 'n', 'e', 's', 'w' ],
+          walls: {}
         };
-        cell.initOrder.forEach(function (direction) {
-          cell.neighbors[direction] = true;
-        });
+        for (i = 0; i < 4; ++i) {
+          cell.walls[cell.initOrder[i]] = true;
+        }
         shuffle(cell.initOrder);
+        cell.leader = cell;
+      }
+    }
+    for (i = 0; i < 4; ++i) {
+      for (r = 0; r < numRows; ++r) {
+        for (c = 0; c < numCols; ++c) {
+          cell = maze[r][c];
+          d = cell.initOrder[i];
+          R = r + directions[d].r;
+          C = c + directions[d].c;
+          if (R < 0 || R >= numRows || C < 0 || C >= numCols) {
+            continue;
+          }
+          neighbor = maze[R][C];
+          if (findLeader(neighbor) == findLeader(cell)) {
+            continue;
+          }
+          joinCell(cell, neighbor);
+          cell.walls[d] = false;
+          neighbor.walls[directions[d].invert] = false;
+        }
       }
     }
   }
@@ -54,22 +97,22 @@ var Maze = (function() {
     var unit = sizes.cell,
         r, c,
         x0, y0,
-        neighbors;
+        walls;
     for (r = 0; r < numRows; ++r) {
       y0 = r * unit;
       for (c = 0; c < numCols; ++c) {
         x0 = c * unit;
-        neighbors = maze[r][c];
-        if (!neighbors.n) {
+        walls = maze[r][c].walls;
+        if (!walls.n) {
           drawLine(x0, y0, x0 + unit, y0);
         }
-        if (!neighbors.e) {
+        if (!walls.e) {
           drawLine(x0 + unit, y0, x0 + unit, y0 + unit);
         }
-        if (!neighbors.s) {
+        if (!walls.s) {
           drawLine(x0, y0 + unit, x0 + unit, y0 + unit);
         }
-        if (!neighbors.w) {
+        if (!walls.w) {
           drawLine(x0, y0, x0, y0 + unit);
         }
       }
