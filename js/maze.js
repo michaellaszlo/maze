@@ -29,10 +29,10 @@ var Maze = (function() {
   }
 
   function findRoot(a) {
-    while (a.parent != a) {
-      a = a.parent;
+    if (a.parent != a) {
+      a.parent = findRoot(a.parent);
     }
-    return a;
+    return a.parent;
   }
 
   function cellString(a) {
@@ -46,7 +46,14 @@ var Maze = (function() {
     if (rootA == rootB) {
       return;
     }
-    rootA.parent = rootB;
+    if (rootA.rank <= rootB.rank) {
+      rootA.parent = rootB;
+      if (rootA.rank == rootB.rank) {
+        rootB.rank += 1;
+      }
+    } else {
+      rootB.parent = rootA;
+    }
     a.passage[direction] = b;
     b.passage[directions[direction].invert] = a;
   }
@@ -65,6 +72,7 @@ var Maze = (function() {
           passage: {}
         };
         cell.parent = cell;
+        cell.rank = 0;
         if (r > 0) {
           walls.push({ a: maze[r - 1][c], b: cell, direction: 's' });
         }
