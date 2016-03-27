@@ -11,8 +11,8 @@ var Maze = (function() {
       containers = {},
       canvases = {},
       contexts = {},
-      numRows = 4,
-      numCols = 4,
+      numRows = 16,
+      numCols = 16,
       maze;
 
   function shuffle(arr) {
@@ -28,60 +28,55 @@ var Maze = (function() {
     }
   }
 
-  function findLeader(a) {
-    while (a.leader != a) {
-      a = a.leader;
+  function findRoot(a) {
+    while (a.parent != a) {
+      a = a.parent;
     }
     return a;
   }
 
-  function joinCell(a, b) {
-    var leaderA = findLeader(a),
-        leaderB = findLeader(b);
-    if (leaderA == leaderB) {
-      return;
-    }
-    a.leader = b.leader;
+  function cellString(a) {
+    return '[' + a.r + ' ' + a.c + ']';
   }
 
+  function joinCells(a, b, direction) {
+    var direction,
+        rootA = findRoot(a),
+        rootB = findRoot(b);
+    if (rootA == rootB) {
+      return;
+    }
+    rootA.parent = rootB;
+    a.passage[direction] = b;
+    b.passage[directions[direction].invert] = a;
+  }
+
+  // Generate a maze using Kruskal's algorithm as described on Wikipedia.
   function initMaze() {
     var cell,
-        r, c, i, d, R, C, neighbor;
+        r, c,
+        walls = [];
     maze = new Array(numRows);
     for (r = 0; r < numRows; ++r) {
       maze[r] = new Array(numCols);
       for (c = 0; c < numCols; ++c) {
         cell = maze[r][c] = {
-          initOrder: [ 'n', 'e', 's', 'w' ],
-          walls: {}
+          r: r, c: c,
+          passage: {}
         };
-        for (i = 0; i < 4; ++i) {
-          cell.walls[cell.initOrder[i]] = true;
+        cell.parent = cell;
+        if (r > 0) {
+          walls.push({ a: maze[r - 1][c], b: cell, direction: 's' });
         }
-        shuffle(cell.initOrder);
-        cell.leader = cell;
-      }
-    }
-    for (i = 0; i < 4; ++i) {
-      for (r = 0; r < numRows; ++r) {
-        for (c = 0; c < numCols; ++c) {
-          cell = maze[r][c];
-          d = cell.initOrder[i];
-          R = r + directions[d].r;
-          C = c + directions[d].c;
-          if (R < 0 || R >= numRows || C < 0 || C >= numCols) {
-            continue;
-          }
-          neighbor = maze[R][C];
-          if (findLeader(neighbor) == findLeader(cell)) {
-            continue;
-          }
-          joinCell(cell, neighbor);
-          cell.walls[d] = false;
-          neighbor.walls[directions[d].invert] = false;
+        if (c > 0) {
+          walls.push({ a: maze[r][c - 1], b: cell, direction: 'e' });
         }
       }
     }
+    shuffle(walls);
+    walls.forEach(function (wall) {
+      joinCells(wall.a, wall.b, wall.direction);
+    });
   }
 
   function drawLine(x0, y0, x1, y1) {
@@ -97,22 +92,22 @@ var Maze = (function() {
     var unit = sizes.cell,
         r, c,
         x0, y0,
-        walls;
+        passage;
     for (r = 0; r < numRows; ++r) {
       y0 = r * unit;
       for (c = 0; c < numCols; ++c) {
         x0 = c * unit;
-        walls = maze[r][c].walls;
-        if (!walls.n) {
+        passage = maze[r][c].passage;
+        if (!passage.n) {
           drawLine(x0, y0, x0 + unit, y0);
         }
-        if (!walls.e) {
+        if (!passage.e) {
           drawLine(x0 + unit, y0, x0 + unit, y0 + unit);
         }
-        if (!walls.s) {
+        if (!passage.s) {
           drawLine(x0, y0 + unit, x0 + unit, y0 + unit);
         }
-        if (!walls.w) {
+        if (!passage.w) {
           drawLine(x0, y0, x0, y0 + unit);
         }
       }
