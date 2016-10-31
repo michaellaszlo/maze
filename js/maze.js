@@ -9,6 +9,7 @@ var Maze = (function() {
         w: { r: 0, c: -1, invert: 'e' }
       },
       containers = {},
+      buttons = {},
       canvases = {},
       contexts = {},
       numRows = 16,
@@ -122,19 +123,27 @@ var Maze = (function() {
     }
   }
 
+  function updateLayout() {
+    document.getElement
+  }
+
   function initLayout() {
     var canvas,
-        container;
+        container,
+        buttonNames;
     canvases.maze = canvas = document.createElement('canvas');
     contexts.maze = canvas.getContext('2d');
     canvas.width = numCols * sizes.cell;
     canvas.height = numRows * sizes.cell;
-    containers.maze = container = document.createElement('div');
-    container.id = 'mazeContainer';
+    containers.maze = container = document.getElementById('mazeContainer');
     container.style.width = canvas.width + 'px';
     container.style.height = canvas.height + 'px';
     container.appendChild(canvas);
     document.body.appendChild(container);
+    buttonNames = [ 'moreRows', 'fewerRows', 'moreColumns', 'fewerColumns' ];
+    buttonNames.forEach(function (name) {
+      buttons[name] = document.getElementById('name');
+    });
   }
 
   function load() {
