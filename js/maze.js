@@ -13,7 +13,7 @@ var Maze = (function() {
       canvases = {},
       contexts = {},
       numRows = 16,
-      numCols = 16,
+      numColumns = 16,
       maze;
 
   function shuffle(arr) {
@@ -60,14 +60,14 @@ var Maze = (function() {
   }
 
   // Generate a maze using Kruskal's algorithm as described on Wikipedia.
-  function initMaze() {
+  function makeMaze() {
     var cell,
         r, c,
         walls = [];
     maze = new Array(numRows);
     for (r = 0; r < numRows; ++r) {
-      maze[r] = new Array(numCols);
-      for (c = 0; c < numCols; ++c) {
+      maze[r] = new Array(numColumns);
+      for (c = 0; c < numColumns; ++c) {
         cell = maze[r][c] = {
           r: r, c: c,
           passage: {}
@@ -101,10 +101,18 @@ var Maze = (function() {
     var unit = sizes.cell,
         r, c,
         x0, y0,
-        passage;
+        passage,
+        container = containers.maze,
+        canvas = canvases.maze,
+        context = contexts.maze;
+    canvas.width = numColumns * sizes.cell;
+    canvas.height = numRows * sizes.cell;
+    container.style.width = canvas.width + 'px';
+    container.style.height = canvas.height + 'px';
+    context.clearRect(0, 0, canvas.width, canvas.height);
     for (r = 0; r < numRows; ++r) {
       y0 = r * unit;
-      for (c = 0; c < numCols; ++c) {
+      for (c = 0; c < numColumns; ++c) {
         x0 = c * unit;
         passage = maze[r][c].passage;
         if (!passage.n) {
@@ -123,33 +131,41 @@ var Maze = (function() {
     }
   }
 
-  function updateLayout() {
-    document.getElement
+  function updateLayout(changeNumRows, changeNumColumns) {
+    changeNumRows = changeNumRows || 0;
+    changeNumColumns = changeNumColumns || 0;
+    numRows += changeNumRows;
+    numColumns += changeNumColumns;
+    containers.numRows.innerHTML = numRows;
+    containers.numColumns.innerHTML = numColumns;
+    makeMaze();
+    paintMaze();
   }
 
-  function initLayout() {
+  function initializeLayout() {
     var canvas,
         container,
         buttonNames;
     canvases.maze = canvas = document.createElement('canvas');
     contexts.maze = canvas.getContext('2d');
-    canvas.width = numCols * sizes.cell;
-    canvas.height = numRows * sizes.cell;
-    containers.maze = container = document.getElementById('mazeContainer');
-    container.style.width = canvas.width + 'px';
-    container.style.height = canvas.height + 'px';
+    containers.maze = container = document.getElementById('maze');
     container.appendChild(canvas);
     document.body.appendChild(container);
+    containers.numRows = document.getElementById('numRows');
+    containers.numColumns = document.getElementById('numColumns');
     buttonNames = [ 'moreRows', 'fewerRows', 'moreColumns', 'fewerColumns' ];
     buttonNames.forEach(function (name) {
-      buttons[name] = document.getElementById('name');
+      buttons[name] = document.getElementById(name);
     });
+    buttons.moreRows.onclick = function () { updateLayout(1, 0); };
+    buttons.fewerRows.onclick = function () { updateLayout(-1, 0); };
+    buttons.moreColumns.onclick = function () { updateLayout(0, 1); };
+    buttons.fewerColumns.onclick = function () { updateLayout(0, -1); };
   }
 
   function load() {
-    initLayout();
-    initMaze();
-    paintMaze();
+    initializeLayout();
+    updateLayout();
   }
   
   return {

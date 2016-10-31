@@ -2,11 +2,28 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: sans-serif;
 }
 
-#mazeContainer {
-  border: 1px solid #bbb;
-  position: absolute;
-  left: 20px;
-  top: 20px;
+#maze {
+  margin: 10px 5px;
+  background: #ffe;
+}
+#maze canvas {
+  display: block;
+}
+
+#controls {
+}
+
+.button {
+  display: inline-block;
+  margin: 10px 5px;
+  padding: 2px 8px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.button:hover {
+  border-color: #bbb;
 }
