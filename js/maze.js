@@ -105,27 +105,25 @@ var Maze = (function() {
         container = containers.maze,
         canvas = canvases.maze,
         context = contexts.maze;
-    canvas.width = numColumns * sizes.cell;
-    canvas.height = numRows * sizes.cell;
+    canvas.width = numColumns * sizes.cell + 4;
+    canvas.height = numRows * sizes.cell + 4;
     container.style.width = canvas.width + 'px';
     container.style.height = canvas.height + 'px';
     context.clearRect(0, 0, canvas.width, canvas.height);
+    context.strokeStyle = '#434340';
+    context.lineWidth = 2;
+    drawLine(0, 1, canvas.width, 1);
+    drawLine(canvas.width - 1, 0, canvas.width - 1, canvas.height);
     for (r = 0; r < numRows; ++r) {
-      y0 = r * unit;
+      y0 = 3 + r * unit;
       for (c = 0; c < numColumns; ++c) {
-        x0 = c * unit;
+        x0 = 1 + c * unit;
         passage = maze[r][c].passage;
-        if (!passage.n) {
-          drawLine(x0, y0, x0 + unit, y0);
-        }
-        if (!passage.e) {
-          drawLine(x0 + unit, y0, x0 + unit, y0 + unit);
-        }
         if (!passage.s) {
-          drawLine(x0, y0 + unit, x0 + unit, y0 + unit);
+          drawLine(x0 - 1, y0 + unit, x0 + 1 + unit, y0 + unit);
         }
         if (!passage.w) {
-          drawLine(x0, y0, x0, y0 + unit);
+          drawLine(x0, y0 - 1, x0, y0 + 1 + unit);
         }
       }
     }
