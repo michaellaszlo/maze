@@ -145,6 +145,7 @@ var Maze = (function() {
         buttonNames;
     containers.maze = document.getElementById('maze');
     canvases.maze = canvas = document.createElement('canvas');
+    M.makeUnselectable(canvas);
     contexts.maze = canvas.getContext('2d');
     containers.maze.appendChild(canvas);
     containers.numRows = document.getElementById('numRows');
@@ -152,6 +153,7 @@ var Maze = (function() {
     buttonNames = [ 'moreRows', 'fewerRows', 'moreColumns', 'fewerColumns' ];
     buttonNames.forEach(function (name) {
       buttons[name] = document.getElementById(name);
+      M.makeUnselectable(buttons[name]);
     });
     buttons.moreRows.onclick = function () { updateLayout(1, 0); };
     buttons.fewerRows.onclick = function () { updateLayout(-1, 0); };
