@@ -1,19 +1,23 @@
 var Maze = (function() {
-  var sizes = {
-        cell: 32
+  var layout = {
+        cell: 32,
+        default: {
+          numRows: 13,
+          numColumns: 15
+        }
       },
+      numRows,
+      numColumns,
+      containers = {},
+      buttons = {},
+      canvases = {},
+      contexts = {},
       directions = {
         n: { r: -1, c: 0, invert: 's' },
         e: { r: 0, c: 1, invert: 'w' },
         s: { r: 1, c: 0, invert: 'n' },
         w: { r: 0, c: -1, invert: 'e' }
       },
-      containers = {},
-      buttons = {},
-      canvases = {},
-      contexts = {},
-      numRows = 13,
-      numColumns = 15,
       maze;
 
   function shuffle(arr) {
@@ -98,15 +102,15 @@ var Maze = (function() {
   }
 
   function paintMaze() {
-    var unit = sizes.cell,
+    var unit = layout.cell,
         r, c,
         x0, y0,
         passage,
         container = containers.maze,
         canvas = canvases.maze,
         context = contexts.maze;
-    canvas.width = numColumns * sizes.cell + 4;
-    canvas.height = numRows * sizes.cell + 4;
+    canvas.width = numColumns * layout.cell + 4;
+    canvas.height = numRows * layout.cell + 4;
     container.style.width = canvas.width + 'px';
     container.style.height = canvas.height + 'px';
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -132,8 +136,10 @@ var Maze = (function() {
   function updateLayout(changeNumRows, changeNumColumns) {
     changeNumRows = changeNumRows || 0;
     changeNumColumns = changeNumColumns || 0;
-    numRows += changeNumRows;
-    numColumns += changeNumColumns;
+    numRows = Math.max(1, numRows + changeNumRows);
+    numColumns = Math.max(1, numColumns + changeNumColumns);
+    localStorage.setItem('numRows', numRows);
+    localStorage.setItem('numColumns', numColumns);
     containers.numRows.innerHTML = numRows;
     containers.numColumns.innerHTML = numColumns;
     makeMaze();
@@ -143,6 +149,13 @@ var Maze = (function() {
   function initializeLayout() {
     var canvas,
         buttonNames;
+    if (localStorage.getItem('numRows') === null) {
+      numRows = layout.default.numRows;
+      numColumns = layout.default.numColumns;
+    } else {
+      numRows = parseInt(localStorage.getItem('numRows'), 10);
+      numColumns = parseInt(localStorage.getItem('numColumns'), 10);
+    }
     containers.maze = document.getElementById('maze');
     canvases.maze = canvas = document.createElement('canvas');
     M.makeUnselectable(canvas);
