@@ -5,6 +5,10 @@
   font-family: sans-serif;
 }
 
+#wrapper {
+  padding: 5px 10px;
+}
+
 #maze {
   margin: 10px 5px;
   background: #f9f6ec;

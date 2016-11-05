@@ -12,8 +12,8 @@ var Maze = (function() {
       buttons = {},
       canvases = {},
       contexts = {},
-      numRows = 16,
-      numColumns = 16,
+      numRows = 13,
+      numColumns = 15,
       maze;
 
   function shuffle(arr) {
@@ -142,13 +142,11 @@ var Maze = (function() {
 
   function initializeLayout() {
     var canvas,
-        container,
         buttonNames;
+    containers.maze = document.getElementById('maze');
     canvases.maze = canvas = document.createElement('canvas');
     contexts.maze = canvas.getContext('2d');
-    containers.maze = container = document.getElementById('maze');
-    container.appendChild(canvas);
-    document.body.appendChild(container);
+    containers.maze.appendChild(canvas);
     containers.numRows = document.getElementById('numRows');
     containers.numColumns = document.getElementById('numColumns');
     buttonNames = [ 'moreRows', 'fewerRows', 'moreColumns', 'fewerColumns' ];
